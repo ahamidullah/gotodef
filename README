@@ -2,23 +2,27 @@ Jump to a declaration in Go source code. Replacement for godef.
 Does not handle name conflicts/cgo files correctly yet.
 
 Usage:
-	gotodef <expr> <file>
+```
+gotodef <expr> <file>
+```
 
 Output:
-	<file>:<line>:<col>
+```
+<file>:<line>:<col>
+```
 
 Vim Integration:
 Put this in your .vimrc:
-	function! GotoDef()
-	  echo "gotodef " . expand("<cword>") . " " . expand('%:t')
-	  let loc = system("gotodef " . expand("<cword>") . " " . expand('%:t'))
-	  if loc == ""
-		echo "no decl found"
-		return
-	  endif
-	  let args = split(loc, ":")
-	  execute "edit " . args[0]
-	  execute "cal cursor(" . args[1] . ", " . args[2] . ")"
-	endfunction
-
-	nnoremap gd :call GotoDef()<CR>
+```
+function! GotoDef()
+  echo "gotodef " . expand("<cword>") . " " . expand('%:p')
+  let loc = system("gotodef " . expand("<cword>") . " " . expand('%:p'))
+  if loc == ""
+    echo "no decl found"
+    return
+  endif
+  let args = split(loc, ":")
+  execute "edit " . args[0]
+  execute "cal cursor(" . args[1] . ", " . args[2] . ")"
+endfunction
+```

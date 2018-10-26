@@ -12,6 +12,7 @@ import (
 	"unicode"
 )
 
+// TODO: search the entire current package, not just the current file
 // TODO: Search for declarations in local scope. (scope.LookupParent?)
 // TODO: Support for struct fields.
 
@@ -66,6 +67,16 @@ func findDeclInFile(tok, fname string) (string, error) {
 			return "", err
 		}
 		for _, gf := range pkg.GoFiles {
+			fpath := filepath.Join(pkg.Dir, gf)
+			impf, err := parser.ParseFile(fset, fpath, nil, 0)
+			if err != nil {
+				return "", err
+			}
+			if pos := findDecl(tok, impf.Decls, false); pos != -1 {
+				return fset.Position(pos).String(), nil
+			}
+		}
+		for _, gf := range pkg.CgooFiles {
 			fpath := filepath.Join(pkg.Dir, gf)
 			impf, err := parser.ParseFile(fset, fpath, nil, 0)
 			if err != nil {
