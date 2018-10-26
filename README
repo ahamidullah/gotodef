@@ -2,9 +2,7 @@ Jump to a declaration in Go source code. Replacement for godef.
 Does not handle name conflicts/cgo files correctly yet.
 
 Usage:
-```
-gotodef <expr> <file>
-```
+> gotodef <expr> <file>
 
 Output:
 ```
