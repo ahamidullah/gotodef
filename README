@@ -26,3 +26,5 @@ Put this in your .vimrc:
 	  execute "edit " . args[0]
 	  execute "cal cursor(" . args[1] . ", " . args[2] . ")"
 	endfunction
+
+	nnoremap gd :call GotoDef()<CR>
