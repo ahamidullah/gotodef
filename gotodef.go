@@ -34,19 +34,19 @@ func main() {
 // findDeclInFile returns the location of the token's declaration, in the form of file:byteOffset.
 // It searches the declarations in the supplied file, as well as the imported symbols.
 // If the token's declaration is not found, returns an empty string.
-func findDeclInFile(tok, fname string) (string, error) {
+func findDeclInFile(tok, srcFname string) (string, error) {
 	debugLog("finding %s\n", tok)
 	if tok == "" {
 		return "", nil
 	}
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, fname, nil, 0)
+	srcF, err := parser.ParseFile(fset, srcFname, nil, 0)
 	if err != nil {
 		return "", err
 	}
 
 	// First, try searching all the declarations in the file specified on the command line.
-	if pos := findDecl(tok, f.Decls, false); pos != -1 {
+	if pos := findDecl(tok, srcF.Decls, false); pos != -1 {
 		return fset.Position(pos).String(), nil
 	}
 
@@ -56,36 +56,41 @@ func findDeclInFile(tok, fname string) (string, error) {
 	if !unicode.IsUpper(rune(tok[0])) {
 		return "", nil
 	}
-	for _, imp := range f.Imports {
-		noQuoteIpath := imp.Path.Value[1 : len(imp.Path.Value)-1]
-		fpath, err := filepath.Abs(fname)
+	for _, imp := range srcF.Imports {
+		impPath := imp.Path.Value[1 : len(imp.Path.Value)-1]
+		srcFpath, err := filepath.Abs(srcFname)
 		if err != nil {
 			return "", err
 		}
-		pkg, err := build.Import(noQuoteIpath, filepath.Dir(fpath), 0)
+		pkg, err := build.Import(impPath, filepath.Dir(srcFpath), 0)
 		if err != nil {
 			return "", err
 		}
-		for _, gf := range pkg.GoFiles {
-			fpath := filepath.Join(pkg.Dir, gf)
-			impf, err := parser.ParseFile(fset, fpath, nil, 0)
-			if err != nil {
-				return "", err
-			}
-			if pos := findDecl(tok, impf.Decls, false); pos != -1 {
-				return fset.Position(pos).String(), nil
-			}
-		}
-		for _, gf := range pkg.CgooFiles {
-			fpath := filepath.Join(pkg.Dir, gf)
-			impf, err := parser.ParseFile(fset, fpath, nil, 0)
-			if err != nil {
-				return "", err
-			}
-			if pos := findDecl(tok, impf.Decls, false); pos != -1 {
-				return fset.Position(pos).String(), nil
+		impFnameLists := [][]string{pkg.GoFiles, pkg.CgoFiles}
+		for _, impFnames := range impFnameLists {
+			for _, impFname := range impFnames {
+				impFpath := filepath.Join(pkg.Dir, impFname)
+				impF, err := parser.ParseFile(fset, impFpath, nil, 0)
+				if err != nil {
+					return "", err
+				}
+				if pos := findDecl(tok, impF.Decls, false); pos != -1 {
+					return fset.Position(pos).String(), nil
+				}
 			}
 		}
+		/*
+			for _, gf := range pkg.CgoFiles {
+				fpath := filepath.Join(pkg.Dir, gf)
+				impf, err := parser.ParseFile(fset, fpath, nil, 0)
+				if err != nil {
+					return "", err
+				}
+				if pos := findDecl(tok, impf.Decls, false); pos != -1 {
+					return fset.Position(pos).String(), nil
+				}
+			}
+		*/
 		// TODO: Performance: first check scope for the symbol, only parse files on match
 		/*
 			path := i.Path.Value[1 : len(i.Path.Value)-1] // trim quotes

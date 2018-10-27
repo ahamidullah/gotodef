@@ -1,5 +1,11 @@
 Jump to a declaration in Go source code. Replacement for godef.
-Does not handle name conflicts/cgo files correctly yet.
+
+Does not handle name conflicts files correctly yet.
+Eg. strings.Compare and mylib.Compare will conflict. gotodef will return whichever is imported first.
+
+TODO:
+	goto local variable declarations
+	goto struct members
 
 Usage:
 	gotodef <expr> <file>
