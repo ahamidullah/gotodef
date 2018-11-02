@@ -4,5 +4,3 @@ pipeline:
     commands:
       - go build
       - go test
-    repo: github.com/ahhx/gotodef
-
