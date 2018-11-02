@@ -28,3 +28,5 @@ Put this in your .vimrc:
 	endfunction
 
 	nnoremap gd :call GotoDef()<CR>
+
+test test test
