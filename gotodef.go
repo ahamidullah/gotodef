@@ -130,6 +130,7 @@ func findDeclInFile(tok, srcFname string) (string, error) {
 }
 
 // test comment delete me
+// test comment delete me
 // findDecl searches for the supplied token in the given ast.Decl slice.
 // If ignoreImports is true, the decl search will ignore import declarations while traversing the decls.
 // TODO: Performance: If we're checking an import's declarations, we can ignore non-exported declarations, avoiding a string compare.
