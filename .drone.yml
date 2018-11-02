@@ -1,5 +1,7 @@
 pipeline:
   build:
-    image: plugins/docker
+    image: golang
+    commands:
+      - go build
+      - go test
     repo: github.com/ahhx/gotodef
-    tags: latest
